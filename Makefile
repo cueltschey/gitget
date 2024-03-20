@@ -8,20 +8,20 @@ BINDIR=bin
 SRCS=$(wildcard $(SRCDIR)/*.c)
 OBJS=$(SRCS:.c=.o)
 
-TARGET=$(BINDIR)/your_project
+TARGET=$(BINDIR)/githelp
 
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-    $(CC) $(LDFLAGS) $^ -o $@
+	$(CC) $(LDFLAGS) $^ -o $@
 
 $(SRCDIR)/%.o: $(SRCDIR)/%.c
-    $(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 install:
-    cp $(TARGET) /usr/local/bin
+	cp $(TARGET) /usr/local/bin
 
 clean:
-    rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(TARGET)
 
 .PHONY: all clean install
