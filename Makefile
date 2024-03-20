@@ -16,7 +16,7 @@ $(TARGET): $(OBJS)
 	$(CC) $(LDFLAGS) $^ -o $@
 
 $(SRCDIR)/%.o: $(SRCDIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ -lcurl
 
 install:
 	cp $(TARGET) /usr/local/bin
