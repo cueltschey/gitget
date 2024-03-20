@@ -13,10 +13,7 @@ TARGET=$(BINDIR)/githelp
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(LDFLAGS) $^ -o $@
-
-$(SRCDIR)/%.o: $(SRCDIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@ -lcurl
+	$(CC) $(CFLAGS) $^ -o $@ -lcurl
 
 install:
 	cp $(TARGET) /usr/local/bin
