@@ -1,24 +1,27 @@
 CC=gcc
 CFLAGS=-Iinclude -Wall
-LDFLAGS=
+LDFLAGS=-lcurl -lm
 
 SRCDIR=src
+INCDIR=src/include
 BINDIR=bin
 
-SRCS=$(wildcard $(SRCDIR)/*.c)
-OBJS=$(SRCS:.c=.o)
+#SRCS=$(wildcard $(SRCDIR)/*.c)
+#OBJS=$(SRCS:.c=.o)
+SRCS=$(wildcard $(SRCDIR)/*.c) $(wildcard $(INCDIR)/*.c)
 
 TARGET=$(BINDIR)/githelp
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@ -lcurl
+$(TARGET): $(SRCS)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 install:
 	cp $(TARGET) /usr/local/bin
 
 clean:
 	rm -f $(OBJS) $(TARGET)
+	rm -f $(SRCDIR)/*.o
 
 .PHONY: all clean install
