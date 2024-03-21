@@ -56,13 +56,15 @@ int get_repos(const char* username){
             cJSON *private = cJSON_GetObjectItem(element, "private");
 
             if (full_name != NULL) {
-                if(cJSON_IsTrue(private)){
+                if(private != NULL && cJSON_IsTrue(private)){
                   printf("\x1b[33m%s\n", full_name->valuestring);
                 }
                 else{
                   printf("%s\n", full_name->valuestring);
                 }
             }
+          cJSON_Delete(full_name);
+          cJSON_Delete(private);
         }
 
         cJSON_Delete(root); // Free cJSON object after use
