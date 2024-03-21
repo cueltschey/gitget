@@ -56,7 +56,7 @@ int get_repos(const char* username){
             cJSON *private = cJSON_GetObjectItem(element, "private");
 
             if (full_name != NULL) {
-                if(private->valueint == 1){
+                if(cJSON_IsTrue(private)){
                   printf("\x1b[33m%s\n", full_name->valuestring);
                 }
                 else{
