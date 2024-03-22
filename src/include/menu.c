@@ -85,7 +85,6 @@ void filter_search_terms(char *search_terms[], int num_terms) {
 }
 
 
-// TODO: implement previous page
 char* user_select_repo(int refresh) {
     initscr();
     curs_set(0);
