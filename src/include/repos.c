@@ -58,9 +58,9 @@ int get_repos(const char* username, char* repos[30], int page){
 
             if (full_name != NULL) {
                 if(private != NULL && cJSON_IsTrue(private)){
-                  char *colored_name = malloc(strlen(full_name->valuestring) + 6);
+                  char *colored_name = malloc(strlen(full_name->valuestring) + 1);
                   if (colored_name != NULL) {
-                      sprintf(colored_name, "%s-(p) ", full_name->valuestring);
+                      sprintf(colored_name, "*%s", full_name->valuestring);
                       repos[index] = colored_name;
                       index++;
                   }
@@ -68,7 +68,7 @@ int get_repos(const char* username, char* repos[30], int page){
                 else{
                   char* regular_name = malloc(strlen(full_name->valuestring));
                   if(regular_name != NULL){
-                      sprintf(regular_name, "%s ", full_name->valuestring);
+                      sprintf(regular_name, "%s", full_name->valuestring);
                       repos[index] = regular_name;
                       index++;
                   }
