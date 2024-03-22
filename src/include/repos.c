@@ -7,7 +7,7 @@
 #include "repos.h"
 
 
-int get_repos(const char* username, char* repos[30], int page){
+int get_repos(const char* username, char* repos[200]){
     // Initialize libcurl
     CURL *curl;
     CURLcode res;
@@ -25,7 +25,7 @@ int get_repos(const char* username, char* repos[30], int page){
     char* token = "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";
     char api_url[256];
     char auth[256];
-    snprintf(api_url, sizeof(api_url), API_URL_FORMAT, username, page);
+    snprintf(api_url, sizeof(api_url), API_URL_FORMAT, username);
     snprintf(auth, sizeof(auth), "Authorization: Bearer %s", token);
     struct curl_slist *headers = NULL;
     headers = curl_slist_append(headers, auth);

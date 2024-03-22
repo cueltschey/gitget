@@ -1,11 +1,18 @@
 #include "repos.h"
 #include "menu.h"
+#include <string.h>
+#include <ctype.h>
 
 void draw_menu(WINDOW *menu_win, char *options[], int n_options,  int highlight) {
     int x = 2;
     int y = 2;
     werase(menu_win);
     box(menu_win, 0, 0);
+    const char* title = "Repos";
+    int title_width = strlen(title) + 4; // Add padding for borders
+    mvwprintw(menu_win, 0, (getmaxx(menu_win) - title_width) / 2, "[ %s ]", title);
+    wprintw(menu_win, "<< prev | next >>");
+
     int lines;
     if(n_options >= 30){
       lines = n_options;
@@ -33,14 +40,16 @@ void draw_menu(WINDOW *menu_win, char *options[], int n_options,  int highlight)
     wrefresh(menu_win);
 }
 
-int get_options(const char* username, char* options[MAX_OPTIONS], int page){
-    int n_options = get_repos("cueltschey", options, page);
-    int index = n_options;
-    while(index < MAX_OPTIONS){
-      options[index] = NULL;
-      index++;
+int get_options(char* repos[200], int n_repos, char* options[MAX_OPTIONS], int page){
+    int start_index = (page - 1) * 30;
+    int end_index = start_index + 30;
+    if(end_index > n_repos) end_index = n_repos;
+
+    // Fetch values for the given page
+    for (int i = start_index; i < end_index; i++) {
+      options[i - start_index] = repos[i];
     }
-    return n_options;
+    return end_index - start_index;
 }
 
 void filter_search_terms(char *search_terms[], int num_terms) {
@@ -83,48 +92,52 @@ char* user_select_repo() {
 
     init_pair(1, COLOR_YELLOW, COLOR_BLACK);
     init_pair(2, COLOR_RED, COLOR_BLACK);
+    char* repos[200];
+    int n_repos = get_repos("cueltschey", repos);
 
     int choice = 0;
-    char *options[MAX_OPTIONS];
     WINDOW *menu_win;
     int c = 0;
     int page = 1;
-    int height, width, startx, starty;
-    int highlight = 1;
 
-    int n_options = get_options("cueltschey", options, page);
-    highlight = 1;
-    height = n_options + 4; // Adjust the height of the menu window
-    width = 60; // Adjust the width of the menu window
-    starty = (LINES - height) / 2; // Center vertically
-    startx = (COLS - width) / 2; // Center horizontally
+    char *options[MAX_OPTIONS];
+    int n_options = get_options(repos, n_repos, options, page);
+    int highlight = 1;
+    int height = n_options + 4; // Adjust the height of the menu window
+    int width = 60; // Adjust the width of the menu window
+    int starty = (LINES - height) / 2; // Center vertically
+    int startx = (COLS - width) / 2; // Center horizontally
     menu_win = newwin(height, width, starty, startx);
     keypad(menu_win, TRUE);
-    
     draw_menu(menu_win, options, n_options, highlight);
-
+    
     while (1) {
+        draw_menu(menu_win, options, n_options, highlight);
         c = wgetch(menu_win);
         switch (c) {
             case KEY_UP:
-                if (highlight == 1 && n_options == 30)
+                if (highlight == 1)
                     highlight = n_options;
-                else if (highlight == 1)
-                    highlight = n_options - 1;
                 else
                     --highlight;
                 break;
             case KEY_DOWN:
-                if (highlight == n_options && n_options == 30)
-                    highlight = 1;
-                else if (highlight == n_options - 1 && n_options < 30)
+                if (highlight == n_options)
                     highlight = 1;
                 else
                     ++highlight;
                 break;
             case KEY_RIGHT:
-                if(n_options == 30)
-                  choice = 30;
+                if(page * 30 < n_repos){
+                  page++; 
+                  choice = -1;
+                }
+                break;
+            case KEY_LEFT:
+                if(page > 1){
+                  choice = -1;
+                  page--;
+                }
                 break;
             case 10: // Enter key
                 choice = highlight;
@@ -133,15 +146,13 @@ char* user_select_repo() {
                 break;
         }
         if (choice != 0){
-          if(choice == 30){
-            page++;
-            n_options = get_options("cueltschey", options, page);
+          if(choice == -1){
+            n_options = get_options(repos, n_repos, options, page);
             highlight = 1;
             choice = 0;
           }
           else break;
         }
-        draw_menu(menu_win, options, n_options, highlight);
     }
     clrtoeol();
     refresh();

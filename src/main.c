@@ -14,7 +14,6 @@ int main(){
       memmove(repo, repo + 1, strlen(repo));
   }
   pid_t pid = fork();
-  char* username = "cueltschey";
 
   if (pid < 0) {
       // Fork failed
