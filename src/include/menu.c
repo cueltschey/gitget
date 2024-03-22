@@ -7,12 +7,11 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 
-void draw_menu(WINDOW *menu_win, char *options[], int n_options,  int highlight) {
+void draw_menu(WINDOW *menu_win, char *options[], int n_options,  int highlight, const char* title) {
     int x = 2;
     int y = 2;
     werase(menu_win);
     box(menu_win, 0, 0);
-    const char* title = "Repos";
     int title_width = strlen(title) + 4; // Add padding for borders
     mvwprintw(menu_win, 0, (getmaxx(menu_win) - title_width) / 2, "[ %s ]", title);
     wprintw(menu_win, "<< prev | next >>");
@@ -96,35 +95,7 @@ char* user_select_repo(int refresh) {
     init_pair(1, COLOR_YELLOW, COLOR_BLACK);
     init_pair(2, COLOR_RED, COLOR_BLACK);
     char* repos[200];
-    int n_repos;
-    if(refresh == 1){
-      n_repos = get_repos("cueltschey", repos);
-      int fd = open("/tmp/repos", O_WRONLY);
-      for(int i = 0; i < n_repos; ++i){
-        if(write(fd, repos[i], 100) < 0){
-          perror("Write Error");
-          exit(EXIT_FAILURE);
-        }
-      }
-    }
-    else{
-      int fd = open("/tmp/repos", O_RDONLY); 
-      if(fd < 0) {
-      perror("Open Error");
-      exit(EXIT_FAILURE);
-      }
-      char value[100];
-      int bytes_read;
-      n_repos = 0;
-      while((bytes_read = read(fd, &value, 100)) > 0){
-        repos[n_repos] = value;
-        n_repos++;
-      }
-      if(bytes_read < 0){
-      perror("Read Error");
-      exit(EXIT_FAILURE);
-    }
-    }
+    int n_repos = get_repos("cueltschey", repos);
 
     int choice = 0;
     WINDOW *menu_win;
@@ -138,12 +109,13 @@ char* user_select_repo(int refresh) {
     int width = 60; // Adjust the width of the menu window
     int starty = (LINES - height) / 2; // Center vertically
     int startx = (COLS - width) / 2; // Center horizontally
+    const char* title = "Personal Repos";
     menu_win = newwin(height, width, starty, startx);
     keypad(menu_win, TRUE);
-    draw_menu(menu_win, options, n_options, highlight);
+    draw_menu(menu_win, options, n_options, highlight, title);
     
     while (1) {
-        draw_menu(menu_win, options, n_options, highlight);
+        draw_menu(menu_win, options, n_options, highlight, title);
         c = wgetch(menu_win);
         switch (c) {
             case KEY_UP:

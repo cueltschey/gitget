@@ -9,7 +9,7 @@
 
 
 
-void draw_menu(WINDOW *menu_win, char *options[], int n_options,  int highlight);
+void draw_menu(WINDOW *menu_win, char *options[], int n_options,  int highlight, const char* title);
 
 int get_options(char* repos[200], int n_repos, char* options[MAX_OPTIONS], int page);
 
