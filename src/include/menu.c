@@ -2,6 +2,10 @@
 #include "menu.h"
 #include <string.h>
 #include <ctype.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <stdlib.h>
 
 void draw_menu(WINDOW *menu_win, char *options[], int n_options,  int highlight) {
     int x = 2;
@@ -82,7 +86,7 @@ void filter_search_terms(char *search_terms[], int num_terms) {
 
 
 // TODO: implement previous page
-char* user_select_repo() {
+char* user_select_repo(int refresh) {
     initscr();
     curs_set(0);
     clear();
@@ -93,7 +97,35 @@ char* user_select_repo() {
     init_pair(1, COLOR_YELLOW, COLOR_BLACK);
     init_pair(2, COLOR_RED, COLOR_BLACK);
     char* repos[200];
-    int n_repos = get_repos("cueltschey", repos);
+    int n_repos;
+    if(refresh == 1){
+      n_repos = get_repos("cueltschey", repos);
+      int fd = open("/tmp/repos", O_WRONLY);
+      for(int i = 0; i < n_repos; ++i){
+        if(write(fd, repos[i], 100) < 0){
+          perror("Write Error");
+          exit(EXIT_FAILURE);
+        }
+      }
+    }
+    else{
+      int fd = open("/tmp/repos", O_RDONLY); 
+      if(fd < 0) {
+      perror("Open Error");
+      exit(EXIT_FAILURE);
+      }
+      char value[100];
+      int bytes_read;
+      n_repos = 0;
+      while((bytes_read = read(fd, &value, 100)) > 0){
+        repos[n_repos] = value;
+        n_repos++;
+      }
+      if(bytes_read < 0){
+      perror("Read Error");
+      exit(EXIT_FAILURE);
+    }
+    }
 
     int choice = 0;
     WINDOW *menu_win;

@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main(){
-  char* repo = user_select_repo();
+int clone(int refresh){
+  char* repo = user_select_repo(refresh);
   printf("%s\n", repo);
   if (*repo == '*') {
       memmove(repo, repo + 1, strlen(repo));
@@ -29,5 +29,17 @@ int main(){
       int status;
       // Wait for the child process to finish
       waitpid(pid, &status, 0);
+      return WEXITSTATUS(status);
   }
+
+}
+
+int main(int argc, char** argv){
+  int refresh_flag = 0;
+  for(int i = 0; i < argc; ++i){
+    if(strchr(argv[i], '-') != NULL && strchr(argv[i], 'r') != NULL){
+      refresh_flag = 1;
+    } 
+  }
+  clone(refresh_flag);
 }
