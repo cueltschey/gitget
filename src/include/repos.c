@@ -7,7 +7,7 @@
 #include "repos.h"
 
 
-int get_repos(const char* username){
+int get_repos(const char* username, char* repos[30], int page){
     // Initialize libcurl
     CURL *curl;
     CURLcode res;
@@ -25,7 +25,7 @@ int get_repos(const char* username){
     char* token = "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";
     char api_url[256];
     char auth[256];
-    snprintf(api_url, sizeof(api_url), API_URL_FORMAT, username);
+    snprintf(api_url, sizeof(api_url), API_URL_FORMAT, username, page);
     snprintf(auth, sizeof(auth), "Authorization: Bearer %s", token);
     struct curl_slist *headers = NULL;
     headers = curl_slist_append(headers, auth);
@@ -45,34 +45,45 @@ int get_repos(const char* username){
         return EXIT_FAILURE;
     }
 
-    // Print the response
     cJSON *root = cJSON_Parse(chunk.memory);
     cJSON *items = cJSON_GetObjectItem(root, "items");
+    int index = 0;
 
     if (items != NULL && cJSON_IsArray(items)) {
         cJSON *element = NULL;
         cJSON_ArrayForEach(element, items) {
+            // TODO: fix bug with private repos
             cJSON *full_name = cJSON_GetObjectItem(element, "full_name");
             cJSON *private = cJSON_GetObjectItem(element, "private");
 
             if (full_name != NULL) {
                 if(private != NULL && cJSON_IsTrue(private)){
-                  printf("\x1b[33m%s\n", full_name->valuestring);
+                  char *colored_name = malloc(strlen(full_name->valuestring) + 6);
+                  if (colored_name != NULL) {
+                      sprintf(colored_name, "%s-(p) ", full_name->valuestring);
+                      repos[index] = colored_name;
+                      index++;
+                  }
                 }
                 else{
-                  printf("%s\n", full_name->valuestring);
+                  char* regular_name = malloc(strlen(full_name->valuestring));
+                  if(regular_name != NULL){
+                      sprintf(regular_name, "%s ", full_name->valuestring);
+                      repos[index] = regular_name;
+                      index++;
+                  }
                 }
             }
-          cJSON_Delete(full_name);
-          cJSON_Delete(private);
         }
-
-        cJSON_Delete(root); // Free cJSON object after use
+        cJSON_Delete(root);
     }
-
+    if(index == 29){
+      char* next = "NEXT =>";
+      repos[index] = next;
+    }
     // Cleanup
     curl_easy_cleanup(curl);
     free(chunk.memory);
-    return EXIT_SUCCESS;
+    return index + 1;
 }
 

@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Iinclude -Wall
-LDFLAGS=-lcurl -lm
+LDFLAGS=-lcurl -lm -lncurses
 
 SRCDIR=src
 INCDIR=src/include
