@@ -15,7 +15,7 @@ int get_options(char* repos[200], int n_repos, char* options[MAX_OPTIONS], int p
 
 void filter_search_terms(char *search_terms[], int num_terms);
 
-char* user_select_repo(char* token);
+char* user_select_repo(char* token, const char* username);
 
 char* user_create_repo(int maxsize, const char* title);
 

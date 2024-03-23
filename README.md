@@ -9,12 +9,16 @@ Dependency installation:
 
 Ubuntu/Debian:
 > sudo apt-get install libcurl4-openssl-dev libncurses-dev
+
 Fedora:
 > sudo dnf install libcurl-devel ncurses-devel
+
 CentOS/RHEL:
 > sudo yum install libcurl-devel ncurses-devel
+
 Arch Linux:
 > sudo pacman -S curl ncurses
+
 openSUSE:
 > sudo zypper install libcurl-devel ncurses-devel
 
@@ -27,6 +31,6 @@ To install run the following:
 
 Then to authenticate the app generate a token and add it to the environment:
 > cat <<EOF > ~/.bashrc 
-> # Place your github token here
+> export GITHUB_USERNAME=your_username
 > export GITHUB_TOKEN=ghp_*********************
 > EOF
