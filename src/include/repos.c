@@ -7,7 +7,7 @@
 #include "repos.h"
 
 
-int get_repos(const char* username, char* repos[30], int page){
+int get_repos(const char* username, char* repos[200], char* token){
     // Initialize libcurl
     CURL *curl;
     CURLcode res;
@@ -22,10 +22,9 @@ int get_repos(const char* username, char* repos[30], int page){
     }
 
     // Create API URL
-    char* token = "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";
     char api_url[256];
     char auth[256];
-    snprintf(api_url, sizeof(api_url), API_URL_FORMAT, username, page);
+    snprintf(api_url, sizeof(api_url), API_URL_FORMAT, username);
     snprintf(auth, sizeof(auth), "Authorization: Bearer %s", token);
     struct curl_slist *headers = NULL;
     headers = curl_slist_append(headers, auth);
@@ -86,4 +85,57 @@ int get_repos(const char* username, char* repos[30], int page){
     free(chunk.memory);
     return index + 1;
 }
+
+int create_repo(const char *username, const char *repo_name, int is_private, char* token) {
+    int valid = 0;
+    CURL *curl;
+    CURLcode res;
+    struct MemoryStruct chunk;
+
+    chunk.memory = malloc(1);
+    chunk.size = 0;
+
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    curl = curl_easy_init();
+    if (curl) {
+        char url[256] = "https://api.github.com/user/repos";
+        char auth[256];
+        snprintf(auth, sizeof(auth), "Authorization: Bearer %s", token);
+        struct curl_slist *headers = NULL;
+        headers = curl_slist_append(headers, auth);
+
+        char json_payload[512];
+        snprintf(json_payload, sizeof(json_payload), "{\"name\":\"%s\",\"private\":%s}", repo_name, is_private ? "true" : "false");
+
+        curl_easy_setopt(curl, CURLOPT_URL, url);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_payload);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+        res = curl_easy_perform(curl);
+        if (res != CURLE_OK) {
+            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+            return valid;
+        }
+
+        cJSON *root = cJSON_Parse(chunk.memory);
+        cJSON *items = cJSON_GetObjectItem(root, "id");
+        if(items != NULL) valid = 1;
+
+        cJSON_Delete(root);
+        curl_easy_cleanup(curl);
+        free(chunk.memory);
+    }
+
+    curl_global_cleanup();
+
+    printf("%s\n", valid ? "Failed to create repo" : "Repo created successfully");
+    return valid;
+}
+
+
+
 

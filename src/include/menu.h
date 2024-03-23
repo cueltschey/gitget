@@ -9,12 +9,16 @@
 
 
 
-void draw_menu(WINDOW *menu_win, char *options[], int n_options,  int highlight);
+void draw_menu(WINDOW *menu_win, char *options[], int n_options,  int highlight, const char* title);
 
-int get_options(const char* username, char* options[MAX_OPTIONS], int page);
+int get_options(char* repos[200], int n_repos, char* options[MAX_OPTIONS], int page);
 
 void filter_search_terms(char *search_terms[], int num_terms);
 
-char* user_select_repo();
+char* user_select_repo(char* token);
+
+char* user_create_repo(int maxsize, const char* title);
+
+int user_choose_visibility();
 
 #endif
