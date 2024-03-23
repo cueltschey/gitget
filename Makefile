@@ -23,5 +23,8 @@ install:
 clean:
 	rm -f $(OBJS) $(TARGET)
 	rm -f $(SRCDIR)/*.o
+	rm -f $(INCDIR)/*.o
+	rm -f $(BINDIR)/githelp
+	rm -f /usr/local/bin/githelp
 
 .PHONY: all clean install
