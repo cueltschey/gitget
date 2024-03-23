@@ -67,6 +67,7 @@ int main(int argc, char** argv){
   int create_flag = 0;
   int any_flag = 0;
   int personal_flag = 0;
+  int version_flag = 0;
   for(int i = 0; i < argc; ++i){
     if(argv[i][0] != '-') continue;
     if(strchr(argv[i], '-') != NULL && strchr(argv[i], 'c') != NULL){
@@ -77,6 +78,9 @@ int main(int argc, char** argv){
     }
     if(strchr(argv[i], '-') != NULL && strchr(argv[i], 'p') != NULL){
       personal_flag = 1;
+    }
+    if(strchr(argv[i], '-') != NULL && strchr(argv[i], 'v') != NULL){
+      version_flag = 1;
     }
   }
   if(create_flag){
@@ -89,7 +93,7 @@ int main(int argc, char** argv){
   if(any_flag){
     char* new_repo = user_create_repo(30, "Repo Name");
     char* owner = user_create_repo(30, "User Name");
-    clone_username(username, owner);
+    clone_username(owner, new_repo);
     return 0;
   }
 
@@ -101,6 +105,12 @@ int main(int argc, char** argv){
     clone_no_username(repo);
     return 0;
   }
+
+  if(version_flag){
+    printf("GitHelp version 0.1.0\n");
+    return 0;
+  }
+
   printf("Usage: githelp [flags]\n");
   printf("------------------------\n");
   printf("-a : Clone any repo\n");
