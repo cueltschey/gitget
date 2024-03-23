@@ -84,7 +84,7 @@ void filter_search_terms(char *search_terms[], int num_terms) {
 }
 
 
-char* user_select_repo(char* token) {
+char* user_select_repo(char* token, const char* username) {
     initscr();
     curs_set(0);
     clear();
@@ -95,7 +95,7 @@ char* user_select_repo(char* token) {
     init_pair(1, COLOR_YELLOW, COLOR_BLACK);
     init_pair(2, COLOR_RED, COLOR_BLACK);
     char* repos[200];
-    int n_repos = get_repos("cueltschey", repos, token);
+    int n_repos = get_repos(username, repos, token);
 
     int choice = 0;
     WINDOW *menu_win;

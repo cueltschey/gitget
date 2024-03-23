@@ -56,7 +56,12 @@ int clone_username(const char* username, char* repo){
 int main(int argc, char** argv){
   char* token = getenv("GITHUB_TOKEN");
   if(token == NULL){
-    printf("Export your github token to the GITHUB_TOKEN\n");
+    printf("Export your github token to GITHUB_TOKEN\n");
+    exit(EXIT_FAILURE);
+  }
+  const char* username = getenv("GITHUB_USERNAME");
+  if(username == NULL){
+    printf("Export your github username to GITHUB_USERNAME\n");
     exit(EXIT_FAILURE);
   }
   int create_flag = 0;
@@ -76,7 +81,6 @@ int main(int argc, char** argv){
   }
   if(create_flag){
     char* new_repo = user_create_repo(30, "Repo Name");
-    const char* username = "cueltschey";
     int private = user_choose_visibility();
     create_repo(username, new_repo, private, token);
     clone_username(username, new_repo);
@@ -84,13 +88,13 @@ int main(int argc, char** argv){
   }
   if(any_flag){
     char* new_repo = user_create_repo(30, "Repo Name");
-    char* username = user_create_repo(30, "User Name");
-    clone_username(username, new_repo);
+    char* owner = user_create_repo(30, "User Name");
+    clone_username(username, owner);
     return 0;
   }
 
   if(personal_flag){
-    char* repo = user_select_repo(token);
+    char* repo = user_select_repo(token, username);
     if (*repo == '*') {
         memmove(repo, repo + 1, strlen(repo));
     }
