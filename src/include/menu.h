@@ -21,4 +21,6 @@ char* user_create_repo(int maxsize, const char* title);
 
 int user_choose_visibility();
 
+int user_choose_option();
+
 #endif

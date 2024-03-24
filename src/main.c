@@ -64,6 +64,9 @@ int main(int argc, char** argv){
     printf("Export your github username to GITHUB_USERNAME\n");
     exit(EXIT_FAILURE);
   }
+  
+  
+
   int create_flag = 0;
   int any_flag = 0;
   int personal_flag = 0;
@@ -81,6 +84,17 @@ int main(int argc, char** argv){
     }
     if(strchr(argv[i], '-') != NULL && strchr(argv[i], 'v') != NULL){
       version_flag = 1;
+    }
+  }
+  if(argc == 1){
+    int choice = user_choose_option();
+    printf("%d", choice);
+    if (choice == 1){
+      personal_flag = 1;
+    } else if(choice == 2){
+      any_flag = 1;
+    } else{
+      create_flag = 1;
     }
   }
   if(create_flag){

@@ -8,6 +8,8 @@
 #include <stdlib.h>
 
 void draw_menu(WINDOW *menu_win, char *options[], int n_options,  int highlight, const char* title) {
+    init_pair(1, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(2, COLOR_RED, COLOR_BLACK);
     int x = 2;
     int y = 2;
     werase(menu_win);
@@ -87,13 +89,10 @@ void filter_search_terms(char *search_terms[], int num_terms) {
 char* user_select_repo(char* token, const char* username) {
     initscr();
     curs_set(0);
-    clear();
-    noecho();
     cbreak();
+    noecho();
     keypad(stdscr, TRUE);
 
-    init_pair(1, COLOR_YELLOW, COLOR_BLACK);
-    init_pair(2, COLOR_RED, COLOR_BLACK);
     char* repos[200];
     int n_repos = get_repos(username, repos, token);
 
@@ -113,7 +112,6 @@ char* user_select_repo(char* token, const char* username) {
     menu_win = newwin(height, width, starty, startx);
     keypad(menu_win, TRUE);
     draw_menu(menu_win, options, n_options, highlight, title);
-    
     while (1) {
         draw_menu(menu_win, options, n_options, highlight, title);
         c = wgetch(menu_win);
@@ -168,6 +166,7 @@ char* user_create_repo(int max_length, const char* title) {
     initscr();
     cbreak();
     noecho();
+    curs_set(1);
 
     WINDOW *inputwin = newwin(3, max_length + 20, (LINES - 3) / 2, (COLS - max_length - 20) / 2);
     box(inputwin, 0, 0);
@@ -279,11 +278,99 @@ int user_choose_visibility(){
         if(choice != 0) // User made a selection
             break;
     }
-
+    
+    delwin(win);
     endwin(); // End ncurses
+    clear();
 
 
     return choice == 1;
 }
+
+int user_choose_option(){
+    initscr();
+    cbreak();
+    noecho();
+    keypad(stdscr, TRUE);
+    curs_set(0);
+
+    int choice = 0;
+    int highlight = 1;
+    int x, y;
+    int num_choices = 3;
+    const char *choices[] = {
+        "Clone a personal Repo",
+        "Clone any Repo",
+        "Create a Repo"
+    };
+
+    getmaxyx(stdscr, y, x);
+
+    // Clear the screen
+    clear();
+
+    // Create a window for input
+    WINDOW *win = newwin(7, x - 4, (y - 7) / 2, 2);
+    box(win, 0, 0); // Draw a box around the window
+    refresh();
+    wrefresh(win); // Refresh the window
+
+    // Print the menu
+    mvprintw((y - 7) / 2 + 1, (x - strlen("Choose an Action:")) / 2, "Choose an Action:");
+    refresh();
+
+    // Print options
+    for(int i = 0; i < num_choices; i++) {
+        if(i == highlight - 1)
+            attron(A_REVERSE);
+        mvprintw((y - 7) / 2 + 3 + i, (x - strlen(choices[i])) / 2, "%s", choices[i]);
+        attroff(A_REVERSE);
+    }
+    refresh();
+
+    // Loop to navigate through options
+    while(1) {
+        int c = getch();
+        switch(c) {
+            case KEY_UP:
+                if(highlight == 1)
+                    highlight = num_choices;
+                else
+                    --highlight;
+                break;
+            case KEY_DOWN:
+                if(highlight == num_choices)
+                    highlight = 1;
+                else
+                    ++highlight;
+                break;
+            case 10: // Enter key pressed
+                choice = highlight;
+                break;
+            default:
+                break;
+        }
+        // Highlight the current choice
+        for(int i = 0; i < num_choices; i++) {
+            if(i == highlight - 1)
+                attron(A_REVERSE);
+            mvprintw((y - 7) / 2 + 3 + i, (x - strlen(choices[i])) / 2, "%s", choices[i]);
+            attroff(A_REVERSE);
+        }
+        refresh();
+        if(choice != 0) // User made a selection
+            break;
+    }
+
+    delwin(win);
+    endwin(); // End ncurses  
+    clear();
+
+    return choice;
+}
+
+
+
+
 
 
