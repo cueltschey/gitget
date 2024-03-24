@@ -1,5 +1,6 @@
 #include "repos.h"
 #include "menu.h"
+#include "util.h"
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
@@ -16,7 +17,7 @@ void draw_menu(WINDOW *menu_win, char *options[], int n_options,  int highlight,
     box(menu_win, 0, 0);
     int title_width = strlen(title) + 4; // Add padding for borders
     mvwprintw(menu_win, 0, (getmaxx(menu_win) - title_width) / 2, "[ %s ]", title);
-    wprintw(menu_win, "<< prev | next >>");
+    //wprintw(menu_win, "<< prev | next >>");
 
     int lines;
     if(n_options >= 30){
@@ -57,34 +58,36 @@ int get_options(char* repos[200], int n_repos, char* options[MAX_OPTIONS], int p
     return end_index - start_index;
 }
 
-void filter_search_terms(char *search_terms[], int num_terms) {
-    if (search_terms == NULL || num_terms <= 0) {
-        return;
+int get_options_filtered(char* repos[200], int n_repos, char* options[MAX_OPTIONS], int page, char* filter){
+    char** filtered_repos = (char**)malloc(n_repos * sizeof(char*));
+    if (filtered_repos == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(1);
     }
-
-    for (int i = 0; i < num_terms; i++) {
-        if (search_terms[i] != NULL) {
-            size_t length = strlen(search_terms[i]);
-            size_t start = 0;
-
-            // Remove leading whitespace
-            while (start < length && isspace(search_terms[i][start])) {
-                start++;
+    int resultSize = 0;
+    
+    for (int i = 0; i < n_repos; ++i) {
+        if(repos[i] == NULL) break;
+        //if (strstr(repos[i], filter) != NULL) {
+        if(checkSubstring(repos[i], filter) == 1){
+            filtered_repos[resultSize] = strdup(repos[i]);
+            if (filtered_repos[resultSize] == NULL) {
+               fprintf(stderr, "Memory allocation failed\n");
+                exit(1);
             }
-
-            // Remove trailing whitespace
-            size_t end = length;
-            while (end > start && isspace(search_terms[i][end - 1])) {
-                end--;
-            }
-
-            // Shift characters to the beginning of the string
-            memmove(search_terms[i], search_terms[i] + start, end - start);
-            search_terms[i][end - start] = '\0'; // Null-terminate the string
+            resultSize++;
         }
     }
-}
+    int start_index = (page - 1) * 30;
+    int end_index = start_index + 30;
+    if(end_index > resultSize) end_index = resultSize;
 
+    // Fetch values for the given page
+    for (int i = start_index; i < end_index; i++) {
+      options[i - start_index] = filtered_repos[i];
+    }
+    return end_index - start_index;
+}
 
 char* user_select_repo(char* token, const char* username) {
     initscr();
@@ -110,10 +113,15 @@ char* user_select_repo(char* token, const char* username) {
     int startx = (COLS - width) / 2; // Center horizontally
     const char* title = "Personal Repos";
     menu_win = newwin(height, width, starty, startx);
+    char* search_term = "";
+    int search_term_size = 0;
     keypad(menu_win, TRUE);
-    draw_menu(menu_win, options, n_options, highlight, title);
     while (1) {
-        draw_menu(menu_win, options, n_options, highlight, title);
+        if(search_term_size != 0){
+          draw_menu(menu_win, options, n_options, highlight, search_term);
+        } else{
+          draw_menu(menu_win, options, n_options, highlight, title);
+        }
         c = wgetch(menu_win);
         switch (c) {
             case KEY_UP:
@@ -140,10 +148,25 @@ char* user_select_repo(char* token, const char* username) {
                   page--;
                 }
                 break;
+            case KEY_BACKSPACE:
+                if(search_term_size != 0){
+                  search_term = popChar(search_term);
+                  search_term_size--;
+                  page = 1;
+                  n_options = get_options_filtered(repos, n_repos, options, page, search_term);
+                } 
+                if(search_term_size == 0){
+                  n_options = get_options(repos, n_repos, options, page);
+                }
+                break;
             case 10: // Enter key
                 choice = highlight;
                 break;
             default:
+                search_term = appendChar(search_term, c);
+                search_term_size++;
+                page = 1;
+                n_options = get_options_filtered(repos, n_repos, options, page, search_term);
                 break;
         }
         if (choice != 0){
@@ -212,7 +235,6 @@ int user_choose_visibility(){
     keypad(stdscr, TRUE);
     curs_set(0);
 
-    int choice = 0;
     int highlight = 1;
     int x, y;
     int num_choices = 2;
@@ -244,6 +266,7 @@ int user_choose_visibility(){
         attroff(A_REVERSE);
     }
     refresh();
+    int choice = 0;
 
     // Loop to navigate through options
     while(1) {
