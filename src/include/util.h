@@ -12,4 +12,10 @@ struct MemoryStruct {
 
 size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp);
 
+char* appendChar(char* str, char c);
+
+char* popChar(char* str);
+
+int checkSubstring(char* str, char* sub);
+
 #endif
