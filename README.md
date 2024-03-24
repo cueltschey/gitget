@@ -31,10 +31,12 @@ make && \
 sudo make install`
 
 Then to authenticate the app generate a token and add it to the environment:
-```cat <<EOF > ~/.bashrc 
+```
+cat <<EOF > ~/.bashrc 
 export GITHUB_USERNAME=your_username
 export GITHUB_TOKEN=ghp_*********************
-EOF```
+EOF
+```
 
 To verify the installation and authentication run githelp with -v
 `githelp -v`
