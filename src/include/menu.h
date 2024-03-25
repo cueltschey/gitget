@@ -8,6 +8,7 @@
 #define MAX_OPTIONS 31
 
 
+void init_ncurses();
 
 void draw_menu(WINDOW *menu_win, char *options[], int n_options,  int highlight, const char* title);
 

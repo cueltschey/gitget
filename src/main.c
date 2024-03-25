@@ -86,6 +86,9 @@ int main(int argc, char** argv){
       version_flag = 1;
     }
   }
+
+  init_ncurses();
+
   if(argc == 1){
     int choice = user_choose_option();
     printf("%d", choice);

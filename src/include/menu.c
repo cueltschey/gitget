@@ -8,6 +8,15 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 
+
+void init_ncurses(){
+    initscr();
+    curs_set(0);
+    cbreak();
+    noecho();
+    keypad(stdscr, TRUE);
+}
+
 void draw_menu(WINDOW *menu_win, char *options[], int n_options,  int highlight, const char* title) {
     init_pair(1, COLOR_YELLOW, COLOR_BLACK);
     init_pair(2, COLOR_RED, COLOR_BLACK);
@@ -90,11 +99,9 @@ int get_options_filtered(char* repos[200], int n_repos, char* options[MAX_OPTION
 }
 
 char* user_select_repo(char* token, const char* username) {
-    initscr();
-    curs_set(0);
-    cbreak();
-    noecho();
-    keypad(stdscr, TRUE);
+
+    clear();
+    refresh();
 
     char* repos[200];
     int n_repos = get_repos(username, repos, token);
@@ -181,14 +188,10 @@ char* user_select_repo(char* token, const char* username) {
     clrtoeol();
     refresh();
     delwin(menu_win);
-    endwin();
     return options[choice - 1];
 }
 
 char* user_create_repo(int max_length, const char* title) {
-    initscr();
-    cbreak();
-    noecho();
     curs_set(1);
 
     WINDOW *inputwin = newwin(3, max_length + 20, (LINES - 3) / 2, (COLS - max_length - 20) / 2);
@@ -229,10 +232,6 @@ char* user_create_repo(int max_length, const char* title) {
 }
 
 int user_choose_visibility(){
-    initscr();
-    cbreak();
-    noecho();
-    keypad(stdscr, TRUE);
     curs_set(0);
 
     int highlight = 1;
@@ -303,18 +302,12 @@ int user_choose_visibility(){
     }
     
     delwin(win);
-    endwin(); // End ncurses
     clear();
-
 
     return choice == 1;
 }
 
 int user_choose_option(){
-    initscr();
-    cbreak();
-    noecho();
-    keypad(stdscr, TRUE);
     curs_set(0);
 
     int choice = 0;
@@ -386,8 +379,8 @@ int user_choose_option(){
     }
 
     delwin(win);
-    endwin(); // End ncurses  
     clear();
+    refresh();
 
     return choice;
 }
