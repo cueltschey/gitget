@@ -188,6 +188,7 @@ char* user_select_repo(char* token, const char* username) {
     clrtoeol();
     refresh();
     delwin(menu_win);
+    endwin();
     return options[choice - 1];
 }
 
@@ -226,7 +227,6 @@ char* user_create_repo(int max_length, const char* title) {
 
     // Clean up
     delwin(inputwin);
-    endwin();
 
     return input;
 }
@@ -303,6 +303,7 @@ int user_choose_visibility(){
     
     delwin(win);
     clear();
+    endwin();
 
     return choice == 1;
 }
