@@ -74,11 +74,9 @@ int get_options_filtered(char* repos[200], int n_repos, char* options[MAX_OPTION
         exit(1);
     }
     int resultSize = 0;
-    
     for (int i = 0; i < n_repos; ++i) {
         if(repos[i] == NULL) break;
-        //if (strstr(repos[i], filter) != NULL) {
-        if(checkSubstring(repos[i], filter) == 1){
+        if(checkSubstring(repos[i], filter) == 1 || strstr(repos[i], filter) != NULL){
             filtered_repos[resultSize] = strdup(repos[i]);
             if (filtered_repos[resultSize] == NULL) {
                fprintf(stderr, "Memory allocation failed\n");
@@ -173,6 +171,7 @@ char* user_select_repo(char* token, const char* username) {
                 search_term = appendChar(search_term, c);
                 search_term_size++;
                 page = 1;
+                highlight = 1;
                 n_options = get_options_filtered(repos, n_repos, options, page, search_term);
                 break;
         }
@@ -238,8 +237,8 @@ int user_choose_visibility(){
     int x, y;
     int num_choices = 2;
     const char *choices[] = {
-        "Public",
-        "Private"
+        "Private",
+        "Public"
     };
 
     getmaxyx(stdscr, y, x);

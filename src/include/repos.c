@@ -51,7 +51,6 @@ int get_repos(const char* username, char* repos[200], char* token){
     if (items != NULL && cJSON_IsArray(items)) {
         cJSON *element = NULL;
         cJSON_ArrayForEach(element, items) {
-            // TODO: fix bug with private repos
             cJSON *full_name = cJSON_GetObjectItem(element, "full_name");
             cJSON *private = cJSON_GetObjectItem(element, "private");
 
@@ -76,10 +75,7 @@ int get_repos(const char* username, char* repos[200], char* token){
         }
         cJSON_Delete(root);
     }
-    if(index == 29){
-      char* next = "NEXT =>";
-      repos[index] = next;
-    }
+    repos[index] = NULL;
     // Cleanup
     curl_easy_cleanup(curl);
     free(chunk.memory);

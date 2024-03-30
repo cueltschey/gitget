@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ncurses.h>
 
 int clone_no_username(char* repo){
   
@@ -110,6 +111,7 @@ int main(int argc, char** argv){
   if(any_flag){
     char* new_repo = user_create_repo(30, "Repo Name");
     char* owner = user_create_repo(30, "User Name");
+    endwin();
     clone_username(owner, new_repo);
     return 0;
   }
