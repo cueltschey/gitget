@@ -71,6 +71,7 @@ int main(int argc, char** argv){
   int any_flag = 0;
   int personal_flag = 0;
   int version_flag = 0;
+  int help_flag = 0;
   for(int i = 0; i < argc; ++i){
     if(argv[i][0] != '-') continue;
     if(strchr(argv[i], '-') != NULL && strchr(argv[i], 'c') != NULL){
@@ -85,19 +86,23 @@ int main(int argc, char** argv){
     if(strchr(argv[i], '-') != NULL && strchr(argv[i], 'v') != NULL){
       version_flag = 1;
     }
+    if(strchr(argv[i], '-') != NULL && strchr(argv[i], 'h') != NULL){
+      help_flag = 1;
+    }
   }
 
   init_ncurses();
 
   if(argc == 1){
     int choice = user_choose_option();
-    printf("%d", choice);
     if (choice == 1){
       personal_flag = 1;
     } else if(choice == 2){
       any_flag = 1;
-    } else{
+    } else if(choice == 3){
       create_flag = 1;
+    } else{
+      help_flag = 1;
     }
   }
   if(create_flag){
@@ -114,7 +119,6 @@ int main(int argc, char** argv){
     clone_username(owner, new_repo);
     return 0;
   }
-
   if(personal_flag){
     char* repo = user_select_repo(token, username);
     if (*repo == '*') {
@@ -123,12 +127,15 @@ int main(int argc, char** argv){
     clone_no_username(repo);
     return 0;
   }
+  if(help_flag){
+    user_help();
+    return 0;
+  }
 
   if(version_flag){
     printf("GitHelp version 0.1.0\n");
     return 0;
   }
-
   printf("Usage: githelp [flags]\n");
   printf("------------------------\n");
   printf("-a : Clone any repo\n");

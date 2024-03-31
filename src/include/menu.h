@@ -26,4 +26,6 @@ int user_choose_visibility();
 
 int user_choose_option();
 
+void user_help();
+
 #endif

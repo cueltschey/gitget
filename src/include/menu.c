@@ -394,6 +394,33 @@ int user_choose_option() {
     return choice + 1;
 }
 
+void user_help(){
+
+  clear();
+  refresh();
+
+  int width, height;
+  getmaxyx(stdscr, height, width);
+  int x = width / 2;
+  int y = height / 2;
+
+  mvprintw(1 + x, 1 + y, "Git Tutorial:");
+  mvprintw(3, 1, "1. To initialize a new repository, use:");
+  mvprintw(4, 3, "git init");
+  mvprintw(6, 1, "2. To add files to the staging area, use:");
+  mvprintw(7, 3, "git add <file>");
+  mvprintw(8, 1, "   To add all files, use:");
+  mvprintw(9, 3, "git add .");
+  mvprintw(11, 1, "3. To commit changes, use:");
+  mvprintw(12, 3, "git commit -m \"Commit message\"");
+  mvprintw(14, 1, "4. To push changes to a remote repository, use:");
+  mvprintw(15, 3, "git push <remote_name> <branch_name>");
+  mvprintw(17, 1, "Press any key to exit.");
+
+  getch();
+  endwin();
+}
+
 
 
 
