@@ -307,85 +307,92 @@ int user_choose_visibility(){
     return choice == 1;
 }
 
-int user_choose_option(){
-    curs_set(0);
+void draw_quarter(int y, int x, int height, int width, const char* text, const char* desc, bool selected) {
+    for (int i = y; i < y + height; i++) {
+        for (int j = x; j < x + width; j++) {
+            if (selected) {
+                attron(A_REVERSE); // Highlight if selected
+            }
+            mvaddch(i, j, ' ');
+            attroff(A_REVERSE);
+        }
+    }
+    int text_y = y + height / 2;
+    int text_x = x + (width - strlen(text)) / 2;
+    mvprintw(text_y - 2, text_x, "[%s]", text);
+    mvprintw(text_y, text_x - 18, "%s", desc);
+}
 
-    int choice = 0;
-    int highlight = 1;
-    int x, y;
-    int num_choices = 3;
-    const char *choices[] = {
-        "Clone a personal Repo",
-        "Clone any Repo",
-        "Create a Repo"
+int user_choose_option() {
+    curs_set(0);
+    keypad(stdscr, TRUE);
+    int height, width;
+    getmaxyx(stdscr, height, width);
+
+    int box_height = height / 2;
+    int box_width = width / 2;
+
+    int selected_box = 0;
+    int key;
+    int choice = -1;
+    char* options[4] = {
+      "Clone Person Repo",
+      "Clone Any Repo",
+      "Create New Repo",
+      "Not Ready Yet..."
+    };
+    
+    char* descriptions[4] = {
+      "Get a List of all personal repos and choose one of them.",
+      "Enter the Repo name and Username to clone a repo",
+      "Enter Name and privacy of a new Repo.",
+      ""
     };
 
-    getmaxyx(stdscr, y, x);
+    while (1) {
+        clear();
+        int index = 0;
 
-    // Clear the screen
-    clear();
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                int y = i * box_height;
+                int x = j * box_width;
+                draw_quarter(y, x, box_height, box_width, options[index], descriptions[index], (i * 2 + j) == selected_box);
+                index++;
+            }
+        }
 
-    // Create a window for input
-    WINDOW *win = newwin(7, x - 4, (y - 7) / 2, 2);
-    box(win, 0, 0); // Draw a box around the window
-    refresh();
-    wrefresh(win); // Refresh the window
+        refresh();
 
-    // Print the menu
-    mvprintw((y - 7) / 2 + 1, (x - strlen("Choose an Action:")) / 2, "Choose an Action:");
-    refresh();
-
-    // Print options
-    for(int i = 0; i < num_choices; i++) {
-        if(i == highlight - 1)
-            attron(A_REVERSE);
-        mvprintw((y - 7) / 2 + 3 + i, (x - strlen(choices[i])) / 2, "%s", choices[i]);
-        attroff(A_REVERSE);
-    }
-    refresh();
-
-    // Loop to navigate through options
-    while(1) {
-        int c = getch();
-        switch(c) {
+        key = getch();
+        switch (key) {
             case KEY_UP:
-                if(highlight == 1)
-                    highlight = num_choices;
-                else
-                    --highlight;
+                selected_box = (selected_box - 2 + 4) % 4;
                 break;
             case KEY_DOWN:
-                if(highlight == num_choices)
-                    highlight = 1;
-                else
-                    ++highlight;
+                selected_box = (selected_box + 2) % 4;
                 break;
-            case 10: // Enter key pressed
-                choice = highlight;
+            case KEY_LEFT:
+                selected_box = (selected_box - 1 + 4) % 4;
                 break;
+            case KEY_RIGHT:
+                selected_box = (selected_box + 1) % 4;
+                break;
+            case '\n':
+              choice = selected_box;
+              break;
+
             default:
                 break;
         }
-        // Highlight the current choice
-        for(int i = 0; i < num_choices; i++) {
-            if(i == highlight - 1)
-                attron(A_REVERSE);
-            mvprintw((y - 7) / 2 + 3 + i, (x - strlen(choices[i])) / 2, "%s", choices[i]);
-            attroff(A_REVERSE);
-        }
-        refresh();
-        if(choice != 0) // User made a selection
+        if(choice >= 0){
             break;
+        }
     }
-
-    delwin(win);
     clear();
     refresh();
-
-    return choice;
+    return choice + 1;
 }
-
-
 
 
 

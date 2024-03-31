@@ -53,7 +53,6 @@ int clone_username(const char* username, char* repo){
 
 
 }
-
 int main(int argc, char** argv){
   char* token = getenv("GITHUB_TOKEN");
   if(token == NULL){
@@ -138,4 +137,5 @@ int main(int argc, char** argv){
   printf("\n");
   exit(EXIT_FAILURE);
 }
+
 
