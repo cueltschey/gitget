@@ -339,14 +339,14 @@ int user_choose_option() {
       "Clone Person Repo",
       "Clone Any Repo",
       "Create New Repo",
-      "Not Ready Yet..."
+      "git CLI info"
     };
     
     char* descriptions[4] = {
       "Get a List of all personal repos and choose one of them.",
       "Enter the Repo name and Username to clone a repo",
       "Enter Name and privacy of a new Repo.",
-      ""
+      "Get help using git from the CLI"
     };
 
     while (1) {
@@ -399,12 +399,7 @@ void user_help(){
   clear();
   refresh();
 
-  int width, height;
-  getmaxyx(stdscr, height, width);
-  int x = width / 2;
-  int y = height / 2;
-
-  mvprintw(1 + x, 1 + y, "Git Tutorial:");
+  mvprintw(1 , 1, "Git Tutorial:");
   mvprintw(3, 1, "1. To initialize a new repository, use:");
   mvprintw(4, 3, "git init");
   mvprintw(6, 1, "2. To add files to the staging area, use:");
