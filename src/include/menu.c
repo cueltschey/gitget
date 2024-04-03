@@ -319,8 +319,13 @@ void draw_quarter(int y, int x, int height, int width, const char* text, const c
     }
     int text_y = y + height / 2;
     int text_x = x + (width - strlen(text)) / 2;
-    mvprintw(text_y - 2, text_x, "[%s]", text);
-    mvprintw(text_y, text_x - 18, "%s", desc);
+    mvprintw(text_y - 2, text_x, "[ %s ]", text);
+    int term_rows, term_cols;
+    getmaxyx(stdscr, term_rows, term_cols);
+    // Check if the terminal dimensions match the screen dimensions
+    if (term_rows >= 40  && term_cols >= 40) {
+      mvprintw(text_y, text_x - 18, "%s", desc);
+    } 
 }
 
 int user_choose_option() {
