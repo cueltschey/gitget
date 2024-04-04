@@ -82,6 +82,76 @@ int get_repos(const char* username, char* repos[200], char* token){
     return index + 1;
 }
 
+int get_repos_noauth(const char* username, char* repos[200]){
+    // Initialize libcurl
+    CURL *curl;
+    CURLcode res;
+
+    struct MemoryStruct chunk;
+    chunk.memory = malloc(1);
+    chunk.size = 0;
+    curl = curl_easy_init();
+    if (!curl) {
+        perror("Libcurl Init Error");
+        return EXIT_FAILURE;
+    }
+
+    // Create API URL
+    char api_url[256];
+    snprintf(api_url, sizeof(api_url), API_URL_FORMAT, username);
+
+    curl_easy_setopt(curl, CURLOPT_URL, api_url);
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&chunk);
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+
+    // Perform the request
+    res = curl_easy_perform(curl);
+    if (res != CURLE_OK) {
+        fprintf(stderr, "Error: %s\n", curl_easy_strerror(res));
+        curl_easy_cleanup(curl);
+        return EXIT_FAILURE;
+    }
+
+    cJSON *root = cJSON_Parse(chunk.memory);
+    cJSON *items = cJSON_GetObjectItem(root, "items");
+    int index = 0;
+
+    if (items != NULL && cJSON_IsArray(items)) {
+        cJSON *element = NULL;
+        cJSON_ArrayForEach(element, items) {
+            cJSON *full_name = cJSON_GetObjectItem(element, "full_name");
+            cJSON *private = cJSON_GetObjectItem(element, "private");
+
+            if (full_name != NULL) {
+                if(private != NULL && cJSON_IsTrue(private)){
+                  char *colored_name = malloc(strlen(full_name->valuestring) + 1);
+                  if (colored_name != NULL) {
+                      sprintf(colored_name, "*%s", full_name->valuestring);
+                      repos[index] = colored_name;
+                      index++;
+                  }
+                }
+                else{
+                  char* regular_name = malloc(strlen(full_name->valuestring));
+                  if(regular_name != NULL){
+                      sprintf(regular_name, "%s", full_name->valuestring);
+                      repos[index] = regular_name;
+                      index++;
+                  }
+                }
+            }
+        }
+        cJSON_Delete(root);
+    }
+    repos[index] = NULL;
+    // Cleanup
+    curl_easy_cleanup(curl);
+    free(chunk.memory);
+    return index + 1;
+}
+
 int create_repo(const char *username, const char *repo_name, int is_private, char* token) {
     int valid = 0;
     CURL *curl;

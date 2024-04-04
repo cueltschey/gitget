@@ -116,13 +116,13 @@ int main(int argc, char** argv){
     clone_username(username, new_repo);
   }
   if(any_flag){
-    char* new_repo = user_create_repo(30, "Repo Name");
     char* owner = user_create_repo(30, "User Name");
+    char* repo = user_select_foreign_repo(owner);
     endwin();
-    clone_username(owner, new_repo);
+    clone_no_username(repo);
   }
   if(personal_flag){
-    char* repo = user_select_repo(token, username);
+    char* repo = user_select_personal_repo(token, username);
     if (*repo == '*') {
         memmove(repo, repo + 1, strlen(repo));
     }

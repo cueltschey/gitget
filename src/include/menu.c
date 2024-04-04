@@ -96,13 +96,108 @@ int get_options_filtered(char* repos[200], int n_repos, char* options[MAX_OPTION
     return end_index - start_index;
 }
 
-char* user_select_repo(char* token, const char* username) {
+char* user_select_personal_repo(char* token, const char* username) {
 
     clear();
     refresh();
 
     char* repos[200];
     int n_repos = get_repos(username, repos, token);
+
+    int choice = 0;
+    WINDOW *menu_win;
+    int c = 0;
+    int page = 1;
+
+    char *options[MAX_OPTIONS];
+    int n_options = get_options(repos, n_repos, options, page);
+    int highlight = 1;
+    int height = n_options + 4; // Adjust the height of the menu window
+    int width = 60; // Adjust the width of the menu window
+    int starty = (LINES - height) / 2; // Center vertically
+    int startx = (COLS - width) / 2; // Center horizontally
+    const char* title = "Personal Repos";
+    menu_win = newwin(height, width, starty, startx);
+    char* search_term = "";
+    int search_term_size = 0;
+    keypad(menu_win, TRUE);
+    while (1) {
+        if(search_term_size != 0){
+          draw_menu(menu_win, options, n_options, highlight, search_term);
+        } else{
+          draw_menu(menu_win, options, n_options, highlight, title);
+        }
+        c = wgetch(menu_win);
+        switch (c) {
+            case KEY_UP:
+                if (highlight == 1)
+                    highlight = n_options;
+                else
+                    --highlight;
+                break;
+            case KEY_DOWN:
+                if (highlight == n_options)
+                    highlight = 1;
+                else
+                    ++highlight;
+                break;
+            case KEY_RIGHT:
+                if(page * 30 < n_repos){
+                  page++; 
+                  choice = -1;
+                }
+                break;
+            case KEY_LEFT:
+                if(page > 1){
+                  choice = -1;
+                  page--;
+                }
+                break;
+            case KEY_BACKSPACE:
+                if(search_term_size != 0){
+                  search_term = popChar(search_term);
+                  search_term_size--;
+                  page = 1;
+                  n_options = get_options_filtered(repos, n_repos, options, page, search_term);
+                } 
+                if(search_term_size == 0){
+                  n_options = get_options(repos, n_repos, options, page);
+                }
+                break;
+            case 10: // Enter key
+                choice = highlight;
+                break;
+            default:
+                search_term = appendChar(search_term, c);
+                search_term_size++;
+                page = 1;
+                highlight = 1;
+                n_options = get_options_filtered(repos, n_repos, options, page, search_term);
+                break;
+        }
+        if (choice != 0){
+          if(choice == -1){
+            n_options = get_options(repos, n_repos, options, page);
+            highlight = 1;
+            choice = 0;
+          }
+          else break;
+        }
+    }
+    clrtoeol();
+    refresh();
+    delwin(menu_win);
+    endwin();
+    return options[choice - 1];
+}
+
+char* user_select_foreign_repo(const char* username) {
+
+    clear();
+    refresh();
+
+    char* repos[200];
+    int n_repos = get_repos_noauth(username, repos);
 
     int choice = 0;
     WINDOW *menu_win;
