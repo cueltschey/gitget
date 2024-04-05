@@ -211,7 +211,8 @@ char* user_select_foreign_repo(const char* username) {
     int width = 60; // Adjust the width of the menu window
     int starty = (LINES - height) / 2; // Center vertically
     int startx = (COLS - width) / 2; // Center horizontally
-    const char* title = "Personal Repos";
+    char title[200];
+    snprintf(title, sizeof(title), "Repos for User: %s", username);
     menu_win = newwin(height, width, starty, startx);
     char* search_term = "";
     int search_term_size = 0;
