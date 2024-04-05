@@ -10,7 +10,7 @@ BINDIR=usr/bin
 #OBJS=$(SRCS:.c=.o)
 SRCS=$(wildcard $(SRCDIR)/*.c) $(wildcard $(INCDIR)/*.c)
 
-TARGET=$(BINDIR)/githelp
+TARGET=$(BINDIR)/gitget
 
 all: $(TARGET)
 
