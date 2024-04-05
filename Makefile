@@ -4,7 +4,7 @@ LDFLAGS=-lcurl -lm -lncurses
 
 SRCDIR=src
 INCDIR=src/include
-BINDIR=bin
+BINDIR=usr/bin
 
 #SRCS=$(wildcard $(SRCDIR)/*.c)
 #OBJS=$(SRCS:.c=.o)
